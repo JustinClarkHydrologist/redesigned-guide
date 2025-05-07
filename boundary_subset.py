@@ -231,20 +231,18 @@ if __name__ == "__main__":
     parser.add_argument('--output-dir', '-o', type=str, help='The output directory used to for saving the geospatial boundary subsets and/or plots')
     args = parser.parse_args()
 
+    # Assign inputs to variables for at the beginning for easier debugging and traceability
     shp = args.boundaries
     gpkg = args.gpkg
+    output_dir = Path(args.output_dir) if args.output_dir else Path("./")
 
     if str(gpkg).startswith('s3:'):
         _s3 = s3fs.S3FileSystem(profile='default')
         _to_open = _s3.open(str(gpkg).replace("s3:/", "s3://"))
     else:
         _to_open = gpkg
-        
-    if args.output_dir is not None:
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(exist_ok=True)
-    else:
-        output_dir = Path("./")
+    # Create a directory with Python named path
+    output_dir.mkdir(exist_ok=True)    
 
     # use_arrow here makes these reads 2-3x faster, especially for
     # reading the network table
